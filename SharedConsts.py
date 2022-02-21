@@ -51,6 +51,7 @@ INTERVAL_BETWEEN_LISTENER_SAMPLES = 5  # in seconds
 
 PATH_2_DOWNLOAD_SCRIPT = r"/groups/pupko/naamawagner/estykatzeff/scripts/download_files_from_ncbi.py"
 
+
 JOB_PREFIX = 'GD'
 KRAKEN_JOB_PREFIX = ''
 
