@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block body %}
+<meta http-equiv="Refresh" content="300">
+
+
+<div id="main_screen" class="flex flex-col mx-auto  h-full justify-evenly items-center">
+
+	<h1 id="state_title" class="text-4xl text-center my-5 select-none" >{{text}}</h1>
+	
+	<img id="loading_gif" class="w-1/3 " alt="loading page"/>
+
+</div>
+
+<script>
+	//to listen for process updates
+	const process_id = '{{process_id}}';
+	let did_sent = false
+	const eventSource = new EventSource("/stream/")
+		eventSource.onmessage = function(e) {
+		if (process_id === e.data){
+			if (!did_sent){
+				console.log(e)
+				const http = new XMLHttpRequest();
+				const url = '/remove_update/' + process_id;
+				http.open('GET', url, true);
+
+				//Send the proper header information along with the request
+				http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+				http.send();
+				did_sent = true
+			}
+			window.location.reload();
+		}
+	}
+	
+	const hextable = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
+	function arrToHex(arr) {
+		let s = '#';
+			for (let i = 0; i < arr.length; i++) {
+				s += hextable[(arr[i] / 16) | 0];
+				s += hextable[arr[i] % 16 | 0];
+			}
+		return s;
+	}
+
+	const image_div = document.getElementById("loading_gif");
+
+	let img = new Image();
+	img.onload = () => {
+		let canvas = document.createElement('canvas');
+		canvas.width = img.width;
+		canvas.height = img.height;
+		canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height);
+		let corner_color = canvas.getContext('2d').getImageData(1, 1, 1, 1).data;
+
+		document.getElementById("main_screen").style.backgroundColor =  arrToHex(corner_color.slice(0,3));
+		let brightness = 0.34 * corner_color[0] + 0.5 * corner_color[1] + 0.16 * corner_color[2];
+
+		if (brightness < 128) document.getElementById("main_screen").style.color = "#FFFFFF";
+		else document.getElementById("main_screen").style.color = "#000000";
+		image_div.src = img.src;
+	}
+	img.src = "{{url_for('static', filename=gif)}}"
+	
+</script>
+
+{% endblock %}
+
+
+

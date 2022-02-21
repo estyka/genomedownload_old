@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Genomefltr</title>
+  <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+  <script src="https://cdn.jsdelivr.net/npm/danfojs@0.3.3/lib/bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.1/chart.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.1.0/dist/chartjs-plugin-annotation.min.js"></script>
+</head>
+
+
+<body class="font-sans">
+  <div class='w-full h-screen bg-no-repeat bg-cover bg-white' >
+
+    <div class="flex flex-col items-center justify-evenly mx-auto h-full">
+        <div class="flex flex-row justify-evenly">
+            {% for key, value in summary_stats.items() %}
+            <div class="flex flex-col justify-evenly text-center mx-2 px-2 py-2 select-none border-2 shadow-lg">
+                <h1 class="text-4xl my-4">{{key}}</h1>
+                <h1 class="text-2xl">{{value}}</h1>
+            </div>
+            {% endfor %}
+        </div>
+        <div  class="flex flex-row items-center" >
+            <div class="border-2 mx-2 shadow-lg" >
+                <canvas style="height: 480px; width: 640px" id="bar_chart" ></canvas>
+            </div>
+            <div class="flex flex-col justify-between border-2 mx-2 px-2 py-2 shadow-lg"   style="height: 480px;">
+                <label class="
+                px-2
+                py-4
+                text-center
+                bg-white
+                rounded-md
+                shadow-md
+                tracking-wide
+                border-2 border-blue cursor-pointer
+                hover:bg-green-600 hover:text-white
+                ease-linear
+                transition-all
+                duration-150
+                mx-3"
+                onclick="toggle_unclassified()">toggle unclassified</label  >
+        
+                <div id="species_container" class="flex flex-col overflow-auto mx-3 px-1 border-2" style="height: 300px;">
+                    <div id="top_species_container" class="flex flex-col py-2 border-b-4">
+                    </div>
+
+                    <div id="other_species_container" class="flex flex-col my-2">
+                    </div>
+                </div>
+            </div>
+            <div class="border-2 mx-2 shadow-lg" >
+                <canvas style="height: 480px; width: 480px" id="pie_chart"> </canvas>
+            </div>
+        </div>
+
+        <form class="my-4" id="export_btn" action="" method=post>
+            <input type="hidden" id="k_mer_threshold" name="k_mer_threshold" value="">
+            <input type="hidden" id="species_list" name="species_list" value="">
+            <label class="
+                w-64
+                px-2
+                py-4
+                text-center
+                bg-white
+                rounded-md
+                shadow-md
+                tracking-wide
+                border-2 border-blue cursor-pointer
+                hover:bg-green-600 hover:text-white
+                ease-linear
+                transition-all
+                duration-150">
+                <span class="mt-2 text-base leading-normal select-none animate-bounce ">Get Filtered Results</span>
+                <input type="submit" value="Export" hidden>
+            </label>
+        </form>
+    </div>
+</div>
+</body>
+<script src="{{url_for('static',filename='js/colors.js')}}"></script>
+<script src="{{url_for('static',filename='js/results.js')}}"></script>
+<script>
+    initResultsScript('{{ data|safe }}','{{ non_contaminant_column_name|safe }}');
+</script>
+</html>

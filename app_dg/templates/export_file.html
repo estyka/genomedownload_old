@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+
+
+{% block body %}
+<div class='w-full h-screen bg-no-repeat bg-cover' 
+       style="background-image: url('../static/images/background.jpg')">
+
+
+    <div class="flex flex-col mx-auto  h-full justify-center items-center">
+        <div>
+            <h1 class="text-6xl text-white select-none">Genome downloading made simple.</h1>
+        </div>
+        <div class="h-48 my-8 flex flex-col justify-end opacity-100 transition-opacity duration-1000 ease-in-out" id="job_button">
+        <form id="export_btn" action="" method=post class="h-48 my-8 flex flex-col justify-end items-center duration-1000 ease-in-out">
+            <input type="submit" value="Export" class="
+              w-64
+              flex flex-col
+              items-center
+              rounded-full
+              px-4
+              py-6
+              bg-white
+              rounded-md
+              shadow-md
+              tracking-wide
+              uppercase
+              border border-blue
+              bg-gray-600
+              text-white
+              ease-linear
+              transition-all
+              duration-150
+              mx-8
+              my-4
+            ">
+        </form>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+</script>
+{% endblock %}
