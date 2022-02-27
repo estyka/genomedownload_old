@@ -51,7 +51,6 @@ INTERVAL_BETWEEN_LISTENER_SAMPLES = 5  # in seconds
 
 PATH_2_DOWNLOAD_SCRIPT = r"/groups/pupko/naamawagner/estykatzeff/scripts/download_files_from_ncbi.py"
 
-
 JOB_PREFIX = 'GD'
 KRAKEN_JOB_PREFIX = ''
 
@@ -59,7 +58,7 @@ KRAKEN_JOB_PREFIX = ''
 GENOME_DOWNLOAD_PROCESS_TEMPLATE = '''
 #!/bin/bash -x
 #PBS -S /bin/bash
-#PBS -q pupkolab@power9
+#PBS -q lifesciweb
 #PBS -N {job_name}
 #PBS -e {error_files_path}
 #PBS -o {output_files_path}
