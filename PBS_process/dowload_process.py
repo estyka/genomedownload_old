@@ -23,6 +23,6 @@ def create_download_process(input_path, species2download):
     terminal_cmd = f'/opt/pbs/bin/qsub {str(temp_script_path)}'
     job_run_output = subprocess.run(terminal_cmd, stdout=PIPE, stderr=PIPE, shell=True)
     print(f'job_run_output = {job_run_output}')
-    #os.remove(temp_script_path)
+    os.remove(temp_script_path)
 
     return job_run_output.stdout.decode('utf-8').split('.')[0]

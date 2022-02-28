@@ -1,8 +1,11 @@
-from flask import Flask, render_template, request, url_for, redirect
+from flask import Flask, render_template, request, url_for, redirect, Response, jsonify
 import uuid
 from SharedConsts import UI_CONSTS
 from Job_Manager_API import Job_Manager_API
 import os
+from utils import State, logger
+import time
+
 
 # from ..utils import logger
 print(__name__)
@@ -10,10 +13,13 @@ app = Flask(__name__)
 
 MAX_NUMBER_PROCESS = 3
 UPLOAD_FOLDERS_ROOT_PATH = '/bioseq/data/results/genomedownload/'
+TIME_OF_STREAMING_UPDATE_REQUEST_BEFORE_DELETING_IT_SEC = 1200
+
 
 process_id2update = []
 
 def update_html(process_id, state):
+    #TODO: see that the states are correct in every stage (running, waiting, finished...)
     logger.info(f'process_id = {process_id} state = {state}')
     if process_id:
         process_id2update.append(process_id)
@@ -53,6 +59,21 @@ def stream():
 
 manager = Job_Manager_API(MAX_NUMBER_PROCESS, UPLOAD_FOLDERS_ROOT_PATH, update_html)
 
+@app.route('/process_state/<process_id>')
+def process_state(process_id):
+    job_state = manager.get_kraken_job_state(process_id)
+    if job_state == None:
+        return redirect(url_for('error', error_type=UI_CONSTS.UI_Errors.UNKNOWN_PROCESS_ID.name))
+    if job_state != State.Finished:
+        kwargs = {
+            "process_id": process_id,
+            "text": UI_CONSTS.states_text_dict[job_state],
+            "message_to_user": UI_CONSTS.PROCESS_INFO_KR,
+            "gif": UI_CONSTS.states_gifs_dict[job_state],
+        }
+        return render_template('process_running.html', **kwargs)
+    else:
+        return redirect(url_for('results', process_id=process_id))
 
 @app.route('/display_error/<error_text>')
 def display_error(error_text):
@@ -69,6 +90,11 @@ def home():
             folder2save_file = os.path.join(UPLOAD_FOLDERS_ROOT_PATH, new_process_id)
             os.mkdir(folder2save_file)
             man_results = manager.add_process(new_process_id, email_address, organism_name)
+            if not man_results:
+                logger.warning(f'job_manager_api can\'t add process')
+                return redirect(url_for('display_error', error_text=UI_CONSTS.ALERT_USER_TEXT_CANT_ADD_PROCESS))
+            logger.info(f'process added man_results = {man_results}, redirecting url')
+            return redirect(url_for('process_state', process_id=new_process_id))
 
         # if organism_name is None:
         #     #logger.warning(f'organism_name not available')

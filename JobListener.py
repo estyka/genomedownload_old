@@ -32,6 +32,7 @@ class PbsListener:
         """
         # get running jobs data
         current_job_state = self.get_server_job_stats()
+        #print(current_job_state)
         # check state diff, act accordingly
         self.handle_job_state(current_job_state)
         # update job status
@@ -98,6 +99,8 @@ class PbsListener:
         :return: a data frame of all current jobs
         """
         result = subprocess.run(['/opt/pbs/bin/qstat', f'-u {SRVER_USERNAME}'], stdout=subprocess.PIPE)
+        #print(f"/opt/pbs/bin/qstat -u {SRVER_USERNAME}")
+        #print(result)
         result_lines = (str(result.stdout).split('\\n'))[5:-1]  # irrelevant text from qstat
         tmp_results_params = [re.sub('\s+', ' ', x).split(' ') for x in result_lines]  # remove spaces and turn to data
         results_params = [i[:11] for i in tmp_results_params]

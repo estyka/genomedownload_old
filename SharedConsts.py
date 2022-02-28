@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-#from utils import State
+from utils import State
 from enum import Enum
 
 # OUTPUT consts
@@ -82,6 +82,42 @@ class EMAIL_CONSTS:
 
 class UI_CONSTS:
     static_folder_path = 'gifs/'
+    
+    states_gifs_dict = {
+    State.Running: {
+        "background": "#9db09f",
+        "gif_id": "aiqIqtW2utnkk"
+    },
+    State.Finished: {
+        "background": "#1674d2",
+        "gif_id": "TvLuZ00OIADoQ"
+    },
+    State.Crashed: {
+        "background": "#1674d2",
+        "gif_id": "TvLuZ00OIADoQ"
+    },
+    State.Waiting:  {
+        "background": "#1674d2",
+        "gif_id": "TvLuZ00OIADoQ"
+    },
+    State.Init:  {
+        "background": "#1674d2",
+        "gif_id": "TvLuZ00OIADoQ"
+    },
+    State.Queue:  {
+        "background": "#1674d2",
+        "gif_id": "TvLuZ00OIADoQ"
+    },
+    }
+    
+    states_text_dict = {
+        State.Running: "Your process is running",
+        State.Finished: "Your process finished... Redirecting to results page", #TODO is needed??
+        State.Crashed: "Your process crashed\n we suggest you rerun the process.", #TODO finish
+        State.Waiting: "We currently run other processes :( \n Your process will start soon",
+        State.Init: "We are verifing your input, your process will start shortly",
+        State.Queue: "Job is queued",
+    }
     
     global allowed_files_str
     ALLOWED_EXTENSIONS = {'fasta', 'fastqc', 'gz'}

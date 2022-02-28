@@ -83,7 +83,7 @@ class Job_Manager_API:
         return None
     
     def get_kraken_job_state(self, process_id):
-        return self.__j_manager.get_kraken_job_state(process_id)
+        return self.__j_manager.get_job_state(process_id)
         
         
     def get_UI_matrix(self, process_id):

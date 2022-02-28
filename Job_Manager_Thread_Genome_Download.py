@@ -17,14 +17,14 @@ class Job_Manager_Thread_Genome_Download:
         paths2verify_process_ends = {
             #when the job crashes/ finished this file path will be checked to set the change to finished if file exists of crashed if file doesn't.
             #for a string of: '' it won't set the state
-            sc.JOB_PREFIX: lambda process_id: os.path.join(os.path.join(upload_root_path, process_id), sc.K_MER_COUNTER_MATRIX_FILE_NAME),
+            sc.JOB_PREFIX: ''#lambda process_id: os.path.join(os.path.join(upload_root_path, process_id), organism_name), #TODO: add results general folder
         }
         self.__job_manager = Job_Manager_Thread_Safe(max_number_of_process, upload_root_path, function2call_processes_changes_state, function2append_process, paths2verify_process_ends)
 
     def __download_process(self, process_folder_path: str, email_address: str, organism_name: str):
         logger.info(f'process_folder_path = {process_folder_path} email_address = {email_address}  organism_name = {organism_name}')
         pbs_id = create_download_process(process_folder_path, organism_name)
-        print(f'pbs_id = {pbs_id}')
+        logger.info(f'pbs_id = {pbs_id}')
         return pbs_id
             
     def __get_state(self, process_id, job_prefix):
@@ -42,7 +42,7 @@ class Job_Manager_Thread_Genome_Download:
         logger.info(f'process_id = {process_id}')
         self.__job_manager.add_process(process_id, sc.JOB_PREFIX, email_address, organism_name)
     
-    
-    def get_job_state(self, process_id: str, job_prefix: str):
-        logger.info(f'process_id = {process_id} job_prefix = {job_prefix}')
-        return self.__job_manager.get_job_state(process_id, job_prefix)
+    def get_job_state(self, process_id: str):
+      job_prefix = sc.JOB_PREFIX
+      logger.info(f'process_id = {process_id} job_prefix = {job_prefix}')
+      return self.__job_manager.get_job_state(process_id, job_prefix)
