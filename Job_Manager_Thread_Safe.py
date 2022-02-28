@@ -132,13 +132,12 @@ class Job_Manager_Thread_Safe:
         email_address = None
         
         if (state == State.Finished or state == State.Crashed) and process_id in self.__processes_state_dict:
-            file2check = self.__paths2verify_process_ends[job_prefix](process_id)
-            if file2check != '': # if file2check is '' don't change the state
-                if os.path.isfile(file2check):
+            dir2check = self.__paths2verify_process_ends[job_prefix](process_id)
+            if dir2check != '':  # if dir2check is '' don't change the state
+                if os.path.isdir(dir2check):
                     state = State.Finished
                 else:
                     state = State.Crashed
-        
         self.__mutex_processes_state_dict.acquire()
         if process_id in self.__processes_state_dict:
             self.__processes_state_dict[process_id].set_job_state(state, job_prefix)

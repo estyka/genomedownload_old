@@ -17,8 +17,15 @@ class Job_Manager_Thread_Genome_Download:
         paths2verify_process_ends = {
             #when the job crashes/ finished this file path will be checked to set the change to finished if file exists of crashed if file doesn't.
             #for a string of: '' it won't set the state
-            sc.JOB_PREFIX: ''#lambda process_id: os.path.join(os.path.join(upload_root_path, process_id), organism_name), #TODO: add results general folder
+            sc.JOB_PREFIX: lambda process_id: os.path.join(upload_root_path, process_id),
         }
+        """
+        # TODO: add to backend script a creation of 'results' folder and then change the lambda to this line: 
+        sc.JOB_PREFIX: lambda process_id: os.path.join(os.path.join(upload_root_path, process_id), "results"),
+
+        # TODO: find out how to add this in
+        sc.POSTPROCESS_JOB_PREFIX: lambda process_id: os.path.join(os.path.join(upload_root_path, process_id), sc.FINAL_OUTPUT_FILE_NAME)
+        """
         self.__job_manager = Job_Manager_Thread_Safe(max_number_of_process, upload_root_path, function2call_processes_changes_state, function2append_process, paths2verify_process_ends)
 
     def __download_process(self, process_folder_path: str, email_address: str, organism_name: str):
