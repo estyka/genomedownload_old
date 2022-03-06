@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, redirect, Response, jsonify
+from flask import Flask, render_template, request, url_for, redirect, Response, jsonify, send_file
 import uuid
 from SharedConsts import UI_CONSTS
 from Job_Manager_API import Job_Manager_API
@@ -73,12 +73,31 @@ def process_state(process_id):
         }
         return render_template('process_running.html', **kwargs)
     else:
-        return redirect(url_for('results', process_id=process_id))
+        return redirect(url_for('download_file', process_id=process_id))
+
+@app.route('/download_file/<process_id>', methods=['GET', 'POST'])
+def download_file(process_id):
+    logger.info(f'request.method: {request.method}')
+    if request.method == 'POST':
+        dir2send = manager.export_dir(process_id)
+        if dir2send == None:
+            logger.warning(f'failed to export dir, process_id = {process_id}, dir2send = {dir2send}')
+            return redirect(url_for('error', error_type=UI_CONSTS.UI_Errors.EXPORT_FILE_UNAVAILABLE.name)) #TODO: change error to be export_dir_unavailable
+        logger.info(f'exporting, process_id = {process_id}, dir2send = {dir2send}')
+        return send_file(dir2send, mimetype='application/octet-stream')
+    return render_template('export_file.html')
+
+@app.route('/error/<error_type>')
+def error(error_type):
+    # checking if error_type exists in error enum
+    try:
+        return render_template('error_page.html', error_text=UI_CONSTS.UI_Errors[error_type].value)
+    except:
+        return render_template('error_page.html', error_text=f'Unknown error, \"{error_type}\" is not a valid error code')
 
 @app.route('/display_error/<error_text>')
 def display_error(error_text):
     return render_template('error_page.html', error_text=error_text)
-
 
 @app.route('/', methods=['GET', 'POST'])
 def home():

@@ -43,7 +43,6 @@ class Job_Manager_Thread_Genome_Download:
         
     def get_download_job_state(self, process_id):
         return self.__get_state(process_id, sc.JOB_PREFIX)
-        
     
     def add_download_process(self, process_id: str, email_address: str, organism_name: str):
         logger.info(f'process_id = {process_id}')
@@ -53,3 +52,12 @@ class Job_Manager_Thread_Genome_Download:
       job_prefix = sc.JOB_PREFIX
       logger.info(f'process_id = {process_id} job_prefix = {job_prefix}')
       return self.__job_manager.get_job_state(process_id, job_prefix)
+
+    def add_postprocess(self, process_id: str):
+        logger.info(f'process_id = {process_id}')
+        self.__job_manager.add_process(process_id, sc.POSTPROCESS_JOB_PREFIX)
+
+    def get_postprocess_job_state(self, process_id):
+        return self.__get_state(process_id, sc.POSTPROCESS_JOB_PREFIX)
+    
+    

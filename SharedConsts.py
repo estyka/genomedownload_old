@@ -12,7 +12,8 @@ TEMP_CLASSIFIED_IDS = Path('TempClassifiedIds.txt')
 TEMP_UNCLASSIFIED_IDS = Path('TempUnClassifiedIds.txt')
 INPUT_CLASSIFIED_FILE_NAME = Path('classified.fasta')
 INPUT_UNCLASSIFIED_FILE_NAME = Path('unclassified.fasta')
-FINAL_OUTPUT_FILE_NAME = Path('FilteredResults.txt.gz')
+FINAL_OUTPUT_DIR_NAME = Path(os.path.join("results", "fasta.zip"))
+#FINAL_OUTPUT_FILE_NAME = Path('FilteredResults.txt.gz')
 KRAKEN_SUMMARY_RESULTS_FOR_UI_FILE_NAME = Path('summary_stat_UI.json')
 RANK_KRAKEN_TRANSLATIONS = {'U': 'Unclassified', 'R': 'Root', 'D': 'Domain', 'K': 'Kingdom', 'P': 'Phylum',
                             'C': 'Class', 'O': 'Order', 'F': 'Family', 'G': 'Genus', 'S': 'Species'}
@@ -49,10 +50,12 @@ WEIRD_BEHAVIOR_JOB_TO_CHECK = ''
 PATH2SAVE_PROCESS_DICT = r'/data/www/flask/genomedownload/SavedObjects/processes.dict'
 INTERVAL_BETWEEN_LISTENER_SAMPLES = 5  # in seconds
 
-PATH_2_DOWNLOAD_SCRIPT = r"/groups/pupko/naamawagner/estykatzeff/scripts/download_files_from_ncbi.py"
+PATH_2_DOWNLOAD_SCRIPT = r"/groups/pupko/estykatzeff/scripts/download_files_from_ncbi.py"
+#PATH_2_DOWNLOAD_SCRIPT = r"/data/www/flask/genomedownload/PBS_process/download_files_from_ncbi.py"
 
 JOB_PREFIX = 'GD'
-KRAKEN_JOB_PREFIX = ''
+POSTPROCESS_JOB_PREFIX = 'PP'
+#KRAKEN_JOB_PREFIX = ''
 
 # todo: replace the conda env
 GENOME_DOWNLOAD_PROCESS_TEMPLATE = '''

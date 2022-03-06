@@ -2,9 +2,10 @@ import os
 import shutil
 import uuid
 import json
+import zipfile
 from Job_Manager_Thread_Genome_Download import Job_Manager_Thread_Genome_Download
 from utils import send_email, State, logger, LOGGER_LEVEL_JOB_MANAGE_API
-from SharedConsts import EMAIL_CONSTS
+from SharedConsts import EMAIL_CONSTS, FINAL_OUTPUT_DIR_NAME
 logger.setLevel(LOGGER_LEVEL_JOB_MANAGE_API)
 
 class Job_Manager_API:
@@ -72,14 +73,16 @@ class Job_Manager_API:
             return True
         logger.warning(f'process_id = {process_id}, can\'t add process: is_valid_email = {is_valid_email}')
         return False
-        
-    def export_file(self, process_id: str):
+            
+    def export_dir(self, process_id: str):
         parent_folder = os.path.join(self.__upload_root_path, process_id)
         if os.path.isdir(parent_folder):
-            file2return = os.path.join(parent_folder, FINAL_OUTPUT_FILE_NAME)
-            if os.path.isfile(file2return):
-                return file2return
-        logger.warning(f'process_id = {process_id} doen\'t have a result file')
+            dir2return = os.path.join(parent_folder, FINAL_OUTPUT_DIR_NAME)
+            z = zipfile.ZipFile(dir2return)
+            logger.info(f'z.namelist: {z.namelist()}')
+            if z.namelist() is not None:
+                return dir2return
+        logger.warning(f'process_id = {process_id} doen\'t have a result dir2return: {dir2return}')
         return None
     
     def get_kraken_job_state(self, process_id):
