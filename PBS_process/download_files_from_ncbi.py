@@ -4,18 +4,19 @@ next steps:
 - check if the downloading time from ncbi is similar time - if not - see if there is a way of downloading the whole folder
 - make sure the codes comes to an end (quits the ftp connection) - works on bacteria with small database, but for some reason doesn't end for x.oryzae. Even though downloads everything (I think) - it gets errors at the end of the run...
 -> idea of how to check this out - count all assemblies and check with debug while seeing what happens when gets to the designated number
-- connect the stats code - to download only relevant ones...
-#example: python .\download_files_from_ncbi.py C:\Users\97252\Documents\year_4\bio_project_data\download_results Xanthomonas_albilineans
 """
 
 from ftplib import FTP
 import os.path
-import os, sys, time, re
+import os, sys, time, re, shutil
 import pandas as pd
 from datetime import datetime
 
 SERVER_PATH = r"ftp.ncbi.nlm.nih.gov"
 SERVER_BACTERIA_LOCATION = r"/genomes/refseq/bacteria/"
+#SAVE_FOLDER = r"C:\Users\97252\Documents\year_4\bio_project_data\download_files_from_ncbi"
+#bacteria_input = r"Xanthomonas_oryzae"  # later: check if runs on lowercase bacteria_input = r"Xanthomonas_oryzae"  # later: check if runs on lowercase
+# SAVE_FOLDER_STATS = r"C:\Users\97252\Documents\year_4\bio_project_data\download_files_from_ncbi\stats"
 
 
 ALL_ASSEMBLY_PREFIX = r"latest_assembly_versions/"
@@ -43,8 +44,7 @@ def get_assemblies_per_org_dict(stats_folder):
                     elif line.startswith("# RefSeq assembly accession:"):
                         cur_dict["refseq_accesion_id"] = line.split()[-1].strip("\n")
                         break
-            if not cur_dict.get("organism_name") or not cur_dict.get("date") or not cur_dict.get(
-                    "refseq_accesion_id") or not cur_dict.get("assembly_level"):
+            if not cur_dict.get("organism_name") or not cur_dict.get("date") or not cur_dict.get("refseq_accesion_id") or not cur_dict.get("assembly_level"):
                 print("ERROR: file= %s has missing info" % stats_filename)
                 break
 
@@ -66,20 +66,41 @@ def get_full_name(cur_dict):
         return org_name + " " + cur_dict["strain"]
 
 
-def get_best_assemblies_per_org_df(stats_folder):
-    organism_dict = get_assemblies_per_org_dict(stats_folder)
-    df_dict = {"organism name": [], "number of assemblies": [], "last assembly level": [], "if best assembly level": [],
-               "last RefSeq accession ID": [], "last assembly date": []}
-    for org, items in organism_dict.items():
-        first_item = items[0]  # default value
-        last_date = datetime.strptime(first_item["date"], "%Y-%m-%d")
-        last_accession_id = first_item["refseq_accesion_id"]
-        last_assembly_level = first_item["assembly_level"]
-        last_assembly_level_int = first_item["assembly_level_int"]
-        min_assembly_level_int = first_item["assembly_level_int"]
+def get_temp_values(item):
+    last_date = datetime.strptime(item["date"], "%Y-%m-%d")
+    last_accession_id = item["refseq_accesion_id"]
+    last_assembly_level = item["assembly_level"]
+    last_assembly_level_int = item["assembly_level_int"]
+    min_assembly_level_int = item["assembly_level_int"]
+    return last_date, last_accession_id, last_assembly_level, last_assembly_level_int, min_assembly_level_int
 
-        if len(items) > 1:  # more than one assembly of the genome
-            for item in items:
+
+#TODO: this can be done in a more "clean" way - inside get_assemblies_df function
+def get_df_no_filter(organism_stats_dict):
+    df_dict = {"organism name": [], "assembly level": [],
+               "assembly date": [], "RefSeq accession ID": [], "number of duplicates": []}
+    for org, dups in organism_stats_dict.items(): #dups is duplicates of the org
+        for item in dups:
+            df_dict["organism name"].append(org)
+            df_dict["assembly level"].append(item["assembly_level"])
+            df_dict["assembly date"].append(item["date"])
+            df_dict["RefSeq accession ID"].append(item["refseq_accesion_id"])
+            df_dict["number of duplicates"].append(len(dups))
+    return df_dict
+
+
+def get_assemblies_df(stats_folder, filter_by_level=False, filter_by_date=False):
+    organism_stats_dict = get_assemblies_per_org_dict(stats_folder)
+
+    if not filter_by_level and not filter_by_date:
+        return get_df_no_filter(organism_stats_dict)  # download all genomes (including duplicates)
+
+    df_dict = {"organism name": [], "number of assemblies": [], "last assembly level": [], "if best assembly level": [],
+               "RefSeq accession ID": [], "last assembly date": []}
+    for org, dups in organism_stats_dict.items():
+        last_date, last_accession_id, last_assembly_level, last_assembly_level_int, min_assembly_level_int = get_temp_values(dups[0]) # getting default values for these variables
+        if len(dups) > 1:  # more than one assembly of the genome
+            for item in dups:
                 date = datetime.strptime(item["date"], "%Y-%m-%d")
                 if date > last_date:
                     last_date = date
@@ -93,8 +114,8 @@ def get_best_assemblies_per_org_df(stats_folder):
 
         df_dict["organism name"].append(org)
         df_dict["last assembly date"].append(last_date)
-        df_dict["number of assemblies"].append(len(items))
-        df_dict["last RefSeq accession ID"].append(last_accession_id)
+        df_dict["number of assemblies"].append(len(dups))
+        df_dict["RefSeq accession ID"].append(last_accession_id)
         df_dict["last assembly level"].append(last_assembly_level)
         df_dict["if best assembly level"].append(last_assembly_level_int == min_assembly_level_int)
     return pd.DataFrame(df_dict)
@@ -176,7 +197,7 @@ def download_stats(ftp, bacteria_folders_clean, save_folder, bacteria_input):
     return num_already_downloaded
 
 
-def get_genomes(num_try: int, save_folder, bacteria_input):
+def get_genomes(num_try: int, save_folder, bacteria_input, filter_by_level, filter_by_date):
     print(f'starting num_try {num_try}')
 
     ftp = FTP(SERVER_PATH)
@@ -186,35 +207,36 @@ def get_genomes(num_try: int, save_folder, bacteria_input):
     ftp.cwd(SERVER_BACTERIA_LOCATION)
     print(f'changed dir to {SERVER_BACTERIA_LOCATION}')
 
-    all_ncbi_bacterias = ftp.nlst(SERVER_BACTERIA_LOCATION)  # get folders within the directory
-    bacterias_of_interest = [filename for filename in all_ncbi_bacterias if
-                              bacteria_input in os.path.basename(filename)]  # get folders of searched bacteria
+    all_ncbi_bacterias = ftp.nlst(SERVER_BACTERIA_LOCATION)  # get folders within the directory #TODO: this takes a while - to make the code run quicker I can make a process that runs once a day - downloads it and saves it locally
+    bacterias_of_interest = [bacteria_path for bacteria_path in all_ncbi_bacterias if
+                             clean_input(os.path.basename(bacteria_path)).startswith(bacteria_input)]  # get bacterias that include bacteria of interest #TODO: make sure it's correct to do startswith...
+    results_folder = os.path.join(os.path.normpath(save_folder), "results")
+    stats_folder = os.path.join(results_folder, os.path.normpath("stats"))
+    fasta_folder = os.path.join(results_folder, os.path.normpath("fasta"))
 
-    local_bacteria_folder = os.path.join(os.path.normpath(save_folder),
-                                         os.path.basename(os.path.normpath(bacteria_input)))
-    local_stats_folder = os.path.join(local_bacteria_folder, os.path.normpath("stats"))
-    local_fasta_folder = os.path.join(local_bacteria_folder, os.path.normpath("fasta"))
-
-    # see if there is a way to write this in one line
-    for dir_path in [local_bacteria_folder, local_stats_folder, local_fasta_folder]:
+    for dir_path in [results_folder, stats_folder, fasta_folder]:
         os.makedirs(dir_path, exist_ok=True)
         print("created dir %s" % dir_path)
 
-    num_stats_downloaded = download_stats(ftp, bacterias_of_interest, local_stats_folder, bacteria_input)
+    num_stats_downloaded = download_stats(ftp, bacterias_of_interest, stats_folder, bacteria_input)
     print(f'num_try {num_try}, already_downloaded {num_stats_downloaded} | len {len(bacterias_of_interest)}')
 
-    accession_ids_to_download = list(get_best_assemblies_per_org_df(local_stats_folder)["last RefSeq accession ID"])
-    num_fasta_downloaded = download_fastas(ftp, bacterias_of_interest, local_fasta_folder, accession_ids_to_download, bacteria_input)
+    assemblies_df = get_assemblies_df(stats_folder, filter_by_level, filter_by_date)
+    accession_ids_to_download = list(assemblies_df["RefSeq accession ID"])
+    num_fasta_downloaded = download_fastas(ftp, bacterias_of_interest, fasta_folder, accession_ids_to_download, bacteria_input)
     print(f'num_try {num_try}, already_downloaded {num_fasta_downloaded} | len {len(bacterias_of_interest)}')
 
     ftp.quit()  # This is the “polite” way to close a connection
     print("Successfully quited ftp connection")
 
+    shutil.make_archive(os.path.join(results_folder, "fasta"), 'zip', fasta_folder)
+    print("Successfully archived fasta folder")
 
-def run(save_folder, bacteria_input):
+
+def run(save_folder, bacteria_input, filter_by_level, filter_by_date):
     for i in range(NUMBER_OF_TRIES):
         try:
-            get_genomes(i, save_folder, bacteria_input)
+            get_genomes(i, save_folder, clean_input(bacteria_input), filter_by_level, filter_by_date)
         except Exception as e:
             print(e)
             print(f'finished try number: {i} out of {NUMBER_OF_TRIES}')
@@ -222,11 +244,19 @@ def run(save_folder, bacteria_input):
             print("Exiting")
             break
 
+def clean_input(bacteria_input): #TODO: decide if there are more "mistakes" we want to allow the user to do
+    result = bacteria_input.lower().replace("_", " ")
+    return result
 
-def main():
-    args = sys.argv[1:]
-    run(args[0], args[1])
+
+#run(r"C:\Users\97252\Documents\year_4\bio_project_data\results", r"Xanthomonas_albilineans")
+#Abiotrophia_defectiva
+#python .\download_files_from_ncbi.py C:\Users\97252\Documents\year_4\bio_project_data\download_results Xanthomonas_albilineans
+#def main():
+run(r"C:\Users\97252\Documents\year_4\bio_project_data\download_results", r"xanthomonas albilineans", filter_by_level=False, filter_by_date=False)
+    # args = sys.argv[1:]
+    # run(args[0], args[1])
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

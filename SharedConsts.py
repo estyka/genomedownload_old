@@ -76,10 +76,10 @@ module load python/python-anaconda3.6.5;python {path_to_python_script} {path_res
 # post processing
 
 class EMAIL_CONSTS:
-    FINISHED_TITLE = f'Genomefltr - Job finished'
-    FINISHED_CONTENT = '''Thanks, for using GenomeFLTR\nYour results are at:\nhttp://genomefltr.tau.ac.il/process_state/{process_id}\nPlease, remember to cite us'''
-    CRASHED_TITLE = f'Genomefltr - Job crashed'
-    CRASHED_CONTENT = '''Thanks, for using GenomeFLTR\nYour results are at:\nhttp://genomefltr.tau.ac.il/process_state/{process_id}\nPlease, remember to cite us'''
+    FINISHED_TITLE = f'Genome Downloader - Job finished'
+    FINISHED_CONTENT = '''Thanks, for using Genome Downloader\nYour results are at:\nhttp://genomedownload.tau.ac.il/process_state/{process_id}\nPlease, remember to cite us'''
+    CRASHED_TITLE = f'Genome Downloader - Job crashed'
+    CRASHED_CONTENT = '''Thanks, for using Genome Downloader\nYour results are at:\nhttp://genomedownload.tau.ac.il/process_state/{process_id}\nPlease, remember to cite us'''
 
 
 
