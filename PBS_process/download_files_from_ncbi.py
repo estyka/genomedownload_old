@@ -89,7 +89,7 @@ def get_df_no_filter(organism_stats_dict):
     return df_dict
 
 
-def get_assemblies_df(stats_folder, filter_by_level=False, filter_by_date=False):
+def get_assemblies_df(stats_folder, filter_by_level, filter_by_date):
     organism_stats_dict = get_assemblies_per_org_dict(stats_folder)
 
     if not filter_by_level and not filter_by_date:
@@ -248,15 +248,12 @@ def clean_input(bacteria_input): #TODO: decide if there are more "mistakes" we w
     result = bacteria_input.lower().replace("_", " ")
     return result
 
+#run(r"C:\Users\97252\Documents\year_4\bio_project_data\download_results", r"xanthomonas albilineans", filter_by_level=False, filter_by_date=False)
 
-#run(r"C:\Users\97252\Documents\year_4\bio_project_data\results", r"Xanthomonas_albilineans")
-#Abiotrophia_defectiva
-#python .\download_files_from_ncbi.py C:\Users\97252\Documents\year_4\bio_project_data\download_results Xanthomonas_albilineans
-#def main():
-run(r"C:\Users\97252\Documents\year_4\bio_project_data\download_results", r"xanthomonas albilineans", filter_by_level=False, filter_by_date=False)
-    # args = sys.argv[1:]
-    # run(args[0], args[1])
+def main():
+    args = sys.argv[1:]
+    run(args[0], args[1], filter_by_level=False, filter_by_date=False)
 
 
-# if __name__ == "__main__":
-#     main()
+if __name__ == "__main__":
+    main()
