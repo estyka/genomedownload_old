@@ -48,6 +48,8 @@ FINISHED_JOBS_NAME = 'Finished'
 ERROR_JOBS_NAME = 'Error'
 WEIRD_BEHAVIOR_JOB_TO_CHECK = ''
 PATH2SAVE_PROCESS_DICT = r'/data/www/flask/genomedownload/SavedObjects/processes.dict'
+PATH2BACTERIAS_LIST = r'/data/www/flask/genomedownload/SavedObjects/ncbi_bacterias.list'
+
 INTERVAL_BETWEEN_LISTENER_SAMPLES = 5  # in seconds
 
 PATH_2_DOWNLOAD_SCRIPT = r"/groups/pupko/estykatzeff/scripts/download_files_from_ncbi.py"
@@ -80,6 +82,7 @@ class EMAIL_CONSTS:
     FINISHED_CONTENT = '''Thanks, for using Genome Downloader\nYour results are at:\nhttp://genomedownload.tau.ac.il/process_state/{process_id}\nPlease, remember to cite us'''
     CRASHED_TITLE = f'Genome Downloader - Job crashed'
     CRASHED_CONTENT = '''Thanks, for using Genome Downloader\nYour results are at:\nhttp://genomedownload.tau.ac.il/process_state/{process_id}\nPlease, remember to cite us'''
+
 
 
 

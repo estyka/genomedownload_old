@@ -6,6 +6,7 @@ import zipfile
 from Job_Manager_Thread_Genome_Download import Job_Manager_Thread_Genome_Download
 from utils import send_email, State, logger, LOGGER_LEVEL_JOB_MANAGE_API
 from SharedConsts import EMAIL_CONSTS, FINAL_OUTPUT_DIR_NAME
+from InputManager import InputManager
 logger.setLevel(LOGGER_LEVEL_JOB_MANAGE_API)
 
 class Job_Manager_API:
@@ -13,6 +14,7 @@ class Job_Manager_API:
         self.__upload_root_path = upload_root_path
         self.__j_manager = Job_Manager_Thread_Genome_Download(max_number_of_process, upload_root_path, self.__process_state_changed)
         self.__func2update_html = func2update_html
+        self.input_manager = InputManager()
 
     def __build_and_send_mail(self, process_id, subject, content, email_address):
         try:
@@ -37,20 +39,15 @@ class Job_Manager_API:
         folder2remove = os.path.join(self.__upload_root_path, process_id)
         shutil.rmtree(folder2remove)
 
-    def __validate_input_file(self, process_id):
+    def __validate_organism_name(self, process_id, organism_name):
         parent_folder = os.path.join(self.__upload_root_path, process_id)
         if not os.path.isdir(parent_folder):
             logger.warning(f'process_id = {process_id} doen\'t have a dir')
             return False
-        #if not os.path.isfile(file2check):
-        #    file2check += '.gz' #maybe it is zipped
-        #    if not os.path.isfile(file2check):
-        #        logger.warning(f'process_id = {process_id} doen\'t have a file')
-        #        return False
-        #if self.input_validator.validate_input_file(file2check):
-        #    return True
-        #self.__delete_folder(process_id)
-        #logger.warning(f'validation failed {file2check}, deleting folder')
+        if self.input_manager.validate_bacteria_input(organism_name):
+            return True
+        self.__delete_folder(process_id)
+        logger.warning(f'validation failed {organism_name}, deleting process folder')
         return False
         
     def __validate_email_address(self, email_address):
@@ -65,10 +62,10 @@ class Job_Manager_API:
 
     def add_process(self, process_id: str, email_address: str, organism_name: str):
         logger.info(f'process_id = {process_id} email_address = {email_address} organism_name = {organism_name}')
+        is_valid_organism = self.__validate_organism_name(process_id, organism_name)
         is_valid_email = self.__validate_email_address(email_address)
-        #TODO add organism_name verification
-        if is_valid_email:
-            logger.info(f'validated email address')
+        if is_valid_organism and is_valid_email:
+            logger.info(f'validated organism name and email address')
             self.__j_manager.add_download_process(process_id, email_address, organism_name)
             return True
         logger.warning(f'process_id = {process_id}, can\'t add process: is_valid_email = {is_valid_email}')
