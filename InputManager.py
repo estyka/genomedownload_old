@@ -55,6 +55,7 @@ class InputManager:
         return False
 
     def validate_bacteria_input(self, bacteria_input):
+        bacteria_input = self.__clean_input(bacteria_input)
         logger.info(f'validating organism input')
         bacteria_list_path = sc.PATH2BACTERIAS_LIST
         if self.__need_to_update_bacteria_list():
@@ -73,7 +74,7 @@ class InputManager:
 
     def __get_bacteria_of_interest_paths_list(self, bacteria_input, bacteria_list):
         bacterias_of_interest = [bacteria_path for bacteria_path in bacteria_list if
-                                 self.__clean_input(os.path.basename(bacteria_path)).startswith(bacteria_input)]
+                                 (self.__clean_input(os.path.basename(bacteria_path))).startswith(bacteria_input)]
         # TODO: make sure it's correct to do startswith
         return bacterias_of_interest
 
