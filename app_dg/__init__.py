@@ -111,7 +111,7 @@ def home():
             man_results = manager.add_process(new_process_id, email_address, organism_name)
             if not man_results:
                 logger.warning(f'job_manager_api can\'t add process')
-                return redirect(url_for('display_error', error_text=UI_CONSTS.ALERT_USER_TEXT_CANT_ADD_PROCESS))
+                return redirect(url_for('display_error', error_text=UI_CONSTS.UI_Errors.INVALID_ORGANISM_NAME.name))
             logger.info(f'process added man_results = {man_results}, redirecting url')
             return redirect(url_for('process_state', process_id=new_process_id))
 

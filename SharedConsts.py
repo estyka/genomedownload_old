@@ -136,6 +136,7 @@ class UI_CONSTS:
         POSTPROCESS_CRASH = 'can\'t postprocess'
         INVALID_MAIL = 'invalid mail'
         CANT_ADD_PROCESS = 'can\'t add search process'
+        INVALID_ORGANISM_NAME = f'invalid organism name, please make sure it exists in the bacteria db in ncbi'
         INVALID_FILE = f'invalid file or file extenstion, please use a valid: {allowed_files_str} file'
         EXPORT_FILE_UNAVAILABLE = f'failed to export file, try to rerun the file'
         PAGE_NOT_FOUND = 'The requested page does not exist'
