@@ -14,6 +14,9 @@ from datetime import datetime
 
 SERVER_PATH = r"ftp.ncbi.nlm.nih.gov"
 SERVER_BACTERIA_LOCATION = r"/genomes/refseq/bacteria/"
+#SAVE_FOLDER = r"C:\Users\97252\Documents\year_4\bio_project_data\download_files_from_ncbi"
+#bacteria_input = r"Xanthomonas_oryzae"  # later: check if runs on lowercase bacteria_input = r"Xanthomonas_oryzae"  # later: check if runs on lowercase
+# SAVE_FOLDER_STATS = r"C:\Users\97252\Documents\year_4\bio_project_data\download_files_from_ncbi\stats"
 
 
 ALL_ASSEMBLY_PREFIX = r"latest_assembly_versions/"
@@ -204,12 +207,9 @@ def get_genomes(num_try: int, save_folder, bacteria_input, filter_by_level, filt
     ftp.cwd(SERVER_BACTERIA_LOCATION)
     print(f'changed dir to {SERVER_BACTERIA_LOCATION}')
 
-    all_ncbi_bacterias = ftp.nlst(SERVER_BACTERIA_LOCATION)  # get folders within the directory #TODO: this takes a while - to make the code run quicker I can retrieve this list from /data/www/flask/genomedownload/SavedObjects/ncbi_bacterias.list
+    all_ncbi_bacterias = ftp.nlst(SERVER_BACTERIA_LOCATION)  # get folders within the directory #TODO: this takes a while - to make the code run quicker I can make a process that runs once a day - downloads it and saves it locally
     bacterias_of_interest = [bacteria_path for bacteria_path in all_ncbi_bacterias if
                              clean_input(os.path.basename(bacteria_path)).startswith(bacteria_input)]  # get bacterias that include bacteria of interest #TODO: make sure it's correct to do startswith...
-
-    print(f'bacterias_of_interest = {bacterias_of_interest}')
-    
     results_folder = os.path.join(os.path.normpath(save_folder), "results")
     stats_folder = os.path.join(results_folder, os.path.normpath("stats"))
     fasta_folder = os.path.join(results_folder, os.path.normpath("fasta"))
@@ -234,19 +234,15 @@ def get_genomes(num_try: int, save_folder, bacteria_input, filter_by_level, filt
 
 
 def run(save_folder, bacteria_input, filter_by_level, filter_by_date):
-    print(f'before clean: bacteria_input={bacteria_input}')
-    bacteria_input = clean_input(bacteria_input)
-    print(f'after clean: bacteria_input={bacteria_input}')
-    #get_genomes(0, save_folder, bacteria_input, filter_by_level, filter_by_date)
     for i in range(NUMBER_OF_TRIES):
-       try:
-           get_genomes(i, save_folder, bacteria_input, filter_by_level, filter_by_date)
-       except Exception as e:
-           print(e)
-           print(f'finished try number: {i} out of {NUMBER_OF_TRIES}')
-       else:
-           print("Exiting")
-           break
+        try:
+            get_genomes(i, save_folder, clean_input(bacteria_input), filter_by_level, filter_by_date)
+        except Exception as e:
+            print(e)
+            print(f'finished try number: {i} out of {NUMBER_OF_TRIES}')
+        else:
+            print("Exiting")
+            break
 
 def clean_input(bacteria_input): #TODO: decide if there are more "mistakes" we want to allow the user to do
     result = bacteria_input.lower().replace("_", " ")
@@ -256,8 +252,7 @@ def clean_input(bacteria_input): #TODO: decide if there are more "mistakes" we w
 
 def main():
     args = sys.argv[1:]
-    organism_input = " ".join(args[1:])
-    run(args[0], organism_input, filter_by_level=False, filter_by_date=False)
+    run(args[0], args[1], filter_by_level=False, filter_by_date=False)
 
 
 if __name__ == "__main__":

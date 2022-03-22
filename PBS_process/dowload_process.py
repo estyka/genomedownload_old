@@ -7,6 +7,7 @@ from utils import logger
 
 def create_download_process(input_path, species2download):
     # create the job
+    species2download = species2download.replace(" ", "_")
     job_unique_id = str(pathlib.Path(input_path).stem)
     temp_script_path = pathlib.Path().resolve() / f'temp_downloadgenome_file_{job_unique_id}.sh'
     job_name = f'{JOB_PREFIX}_{job_unique_id}'
