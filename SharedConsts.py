@@ -48,12 +48,14 @@ FINISHED_JOBS_NAME = 'Finished'
 ERROR_JOBS_NAME = 'Error'
 WEIRD_BEHAVIOR_JOB_TO_CHECK = ''
 PATH2SAVE_PROCESS_DICT = r'/data/www/flask/genomedownload/SavedObjects/processes.dict'
-PATH2BACTERIAS_LIST = r'/data/www/flask/genomedownload/SavedObjects/ncbi_bacterias.list'
+#PATH2BACTERIAS_LIST = r'/data/www/flask/genomedownload/SavedObjects/ncbi_bacterias.list'
+PATH2BACTERIAS_LIST = r'/bioseq/data/results/genomedownload/SavedObjects/ncbi_bacterias.list' #TODO: try this path.... (create savedobjects folder)
 
 INTERVAL_BETWEEN_LISTENER_SAMPLES = 5  # in seconds
 
-PATH_2_DOWNLOAD_SCRIPT = r"/groups/pupko/estykatzeff/scripts/download_files_from_ncbi.py"
-#PATH_2_DOWNLOAD_SCRIPT = r"/data/www/flask/genomedownload/PBS_process/download_files_from_ncbi.py"
+PATH_2_DOWNLOAD_SCRIPT = r"/groups/pupko/estykatzeff/GD_scripts/download_files_from_ncbi.py"
+PATH_2_DOWNLOAD_LIST_SCRIPT = r"/groups/pupko/estykatzeff/GD_scripts/download_species_list.py"
+
 
 JOB_PREFIX = 'GD'
 POSTPROCESS_JOB_PREFIX = 'PP'
@@ -73,6 +75,21 @@ echo job_name: {job_name}
 echo $PBS_JOBID
 module list
 module load python/python-anaconda3.6.5;python {path_to_python_script} {path_results} {speices_to_download}
+'''
+
+SPECIES_LIST_DOWNLOAD_PROCESS_TEMPLATE = '''
+#!/bin/bash -x
+#PBS -S /bin/bash
+#PBS -q lifesciweb
+#PBS -N {job_name}
+#PBS -e {error_files_path}
+#PBS -o {output_files_path}
+#PBS -r y
+hostname
+echo job_name: {job_name}
+echo $PBS_JOBID
+module list
+module load python/python-anaconda3.6.5;python {path_to_python_script} {path_results}
 '''
 
 # post processing
