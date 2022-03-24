@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, url_for, redirect, Response, jsonify, send_file
 import uuid
-from SharedConsts import UI_CONSTS
+from SharedConsts import UI_CONSTS, UPLOAD_FOLDERS_ROOT_PATH
 from Job_Manager_API import Job_Manager_API
 import os
 from utils import State, logger
@@ -12,7 +12,7 @@ print(__name__)
 app = Flask(__name__)
 
 MAX_NUMBER_PROCESS = 3
-UPLOAD_FOLDERS_ROOT_PATH = '/bioseq/data/results/genomedownload/'
+#UPLOAD_FOLDERS_ROOT_PATH = '/bioseq/data/results/genomedownload/'
 TIME_OF_STREAMING_UPDATE_REQUEST_BEFORE_DELETING_IT_SEC = 1200
 
 
