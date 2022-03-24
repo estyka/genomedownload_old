@@ -1,6 +1,6 @@
 import os
 import SharedConsts as sc
-from PBS_process.dowload_process import create_download_process
+from PBS_process.pbs_runner import create_download_process
 from Job_Manager_Thread_Safe import Job_Manager_Thread_Safe
 from utils import logger
 

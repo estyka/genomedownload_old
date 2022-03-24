@@ -7,6 +7,7 @@ from JobListener import PbsListener
 import SharedConsts as sc
 from utils import State, logger, LOGGER_LEVEL_JOB_MANAGE_THREAD_SAFE
 import traceback
+from PBS_process.pbs_runner import run_create_download_species_list_process
 
 logger.setLevel(LOGGER_LEVEL_JOB_MANAGE_THREAD_SAFE)
 
@@ -67,6 +68,7 @@ class Job_Manager_Thread_Safe:
         self.__listener = PbsListener(function_to_call_listener)
         self.__scheduler = BackgroundScheduler()
         self.__scheduler.add_job(self.__listener.run, 'interval', seconds=sc.INTERVAL_BETWEEN_LISTENER_SAMPLES)
+        self.__scheduler.add_job(run_create_download_species_list_process, 'interval', seconds=sc.INTERVAL_BETWEEN_BACTERIA_LIST_UPDATERS)
         self.__scheduler.start()
         
     def __save_processes_state_dict2file(self):

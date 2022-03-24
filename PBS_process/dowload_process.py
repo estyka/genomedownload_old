@@ -5,6 +5,7 @@ import os
 from SharedConsts import GENOME_DOWNLOAD_PROCESS_TEMPLATE, JOB_PREFIX, PATH_2_DOWNLOAD_SCRIPT
 from utils import logger
 
+
 def create_download_process(input_path, species2download):
     # create the job
     species2download = species2download.replace(" ", "_")
@@ -27,3 +28,7 @@ def create_download_process(input_path, species2download):
     os.remove(temp_script_path)
 
     return job_run_output.stdout.decode('utf-8').split('.')[0]
+
+
+def create_process_update_bacteria_list(self):
+    pass

@@ -9,7 +9,15 @@
 </head>
 
 <body class="font-sans h-full">
+  <div class='w-full h-screen bg-no-repeat bg-cover' 
+       style="background-image: url({{url_for('static',filename='images/background.jpg')}})">
+
     {% block body %}{% endblock %}
+  </div>
+
 </body>
 
 </html>
+
+
+
