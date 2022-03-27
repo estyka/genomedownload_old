@@ -16,7 +16,7 @@ SERVER_PATH = r"ftp.ncbi.nlm.nih.gov"
 SERVER_BACTERIA_LOCATION = r"/genomes/refseq/bacteria/"
 
 
-ALL_ASSEMBLY_PREFIX = r"latest_assembly_versions/"
+ALL_ASSEMBLY_PREFIX = r"all_assembly_versions/"
 NUMBER_OF_TRIES = 500
 NUM_OF_ERRORS = 50
 ASSEMBLY_LEVEL_DIC = {"complete genome": 1, "chromosome": 2, "scaffold": 3, "contig": 4}  # the smaller the number the better
@@ -234,9 +234,7 @@ def get_genomes(num_try: int, save_folder, bacteria_input, filter_by_level, filt
 
 
 def run(save_folder, bacteria_input, filter_by_level, filter_by_date):
-    print(f'before clean: bacteria_input={bacteria_input}')
     bacteria_input = clean_input(bacteria_input)
-    print(f'after clean: bacteria_input={bacteria_input}')
     #get_genomes(0, save_folder, bacteria_input, filter_by_level, filter_by_date)
     for i in range(NUMBER_OF_TRIES):
        try:
