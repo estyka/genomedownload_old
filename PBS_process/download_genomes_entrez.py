@@ -1,6 +1,7 @@
 from Bio import Entrez
 import os
 import urllib
+from datetime import datetime
 
 """
 TODO:
@@ -22,7 +23,7 @@ def get_assemblies(term, download=True, path='assemblies'):
         download: whether to download the results
         path: folder to save to
     """
-
+    start = datetime.now()
     #provide your own mail here
     Entrez.email = "estykatzeff@mail.tau.ac.il"
     handle = Entrez.esearch(db="assembly", term=term, retmax='200')
@@ -38,7 +39,7 @@ def get_assemblies(term, download=True, path='assemblies'):
         print(is_refseq)
         url_genbank = summary['DocumentSummarySet']['DocumentSummary'][0]['FtpPath_GenBank']  #get ftp url
         url_stats_rpt = summary['DocumentSummarySet']['DocumentSummary'][0]['FtpPath_Stats_rpt']  #get ftp url
-        url_assembly_rpt = summary['DocumentSummarySet']['DocumentSummary'][0]['FtpPath_Assembly_rpt']  #get ftp url
+        #url_assembly_rpt = summary['DocumentSummarySet']['DocumentSummary'][0]['FtpPath_Assembly_rpt']  #get ftp url
         # 'FtpPath_GenBank', 'FtpPath_RefSeq', 'FtpPath_Assembly_rpt', 'FtpPath_Stats_rpt'
         if url_genbank == '':
             continue
@@ -51,7 +52,9 @@ def get_assemblies(term, download=True, path='assemblies'):
         if download == True:
             urllib.request.urlretrieve(link, os.path.join(dir, f'{label}.fna.gz'))  #download and save link
             # TODO: add a verification here that the download happened (check that file in location isfile()).
-            #urllib.request.urlretrieve(url_stats_rpt)
+            urllib.request.urlretrieve(url_stats_rpt, os.path.join(dir, os.path.basename(url_stats_rpt)))
+    end = datetime.now()
+    print(f'time: {end-start} seconds')
     print(f'latest_refseq_assemblies_count: {latest_refseq_assemblies_count}')
     return links
 
