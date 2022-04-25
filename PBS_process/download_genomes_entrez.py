@@ -6,8 +6,7 @@ TODO:
 """
 
 from Bio import Entrez
-import os
-import urllib
+import os, shutil
 from datetime import datetime
 from ftplib import FTP
 
@@ -31,7 +30,7 @@ def init_dirs(save_folder):
         os.makedirs(dir_path, exist_ok=True)
         print("created dir %s" % dir_path)
 
-    return fasta_folder, stats_folder
+    return results_folder, fasta_folder, stats_folder
 
 
 # def download_fastas(ftp, url_genbank, fasta_folder):
@@ -59,11 +58,17 @@ def download_files(ftp, url_genbank, save_folder, is_fasta=False):
         file_ending = 'genomic.fna.gz'
     else: # stats ending
         file_ending = 'assembly_stats.txt'
-    assembly_file2download = f'{url_genbank}/{label}_{file_ending}'.split(SERVER_PATH)[-1]  # get the download link
-    local_filename = os.path.join(save_folder, os.path.basename(os.path.normpath(assembly_file2download)))
+    file2download = f'{url_genbank}/{label}_{file_ending}'.split(SERVER_PATH)[-1]  # get the download link
+    local_filename = os.path.join(save_folder, os.path.basename(os.path.normpath(file2download)))
     file = open(local_filename, 'wb')
-    ftp.retrbinary('RETR ' + assembly_file2download, file.write)
-
+    print(file2download)
+    try:
+        ftp.retrbinary('RETR ' + file2download, file.write)
+        file.close()
+    except Exception as e:
+        print(f'error downloading file2download: {file2download}, url_genbank: {url_genbank}, Error: {e}')
+        file.close()
+        os.remove(local_filename)
 
 # Download genbank assemblies for a given search term.
 def get_assemblies(save_folder, term):
@@ -79,7 +84,7 @@ def get_assemblies(save_folder, term):
     ftp.login()
     print('logged in')
 
-    fasta_folder, stats_folder = init_dirs(save_folder)
+    results_folder, fasta_folder, stats_folder = init_dirs(save_folder)
 
     for id in ids:
         summary = get_assembly_summary(id)
@@ -95,7 +100,7 @@ def get_assemblies(save_folder, term):
                 print(f'there is no exisiting assembly for id: {id}')
                 continue
 
-
+            print(url_genbank)
             # download assemblies
             download_files(ftp, url_genbank, fasta_folder, is_fasta=True)
 
@@ -105,22 +110,29 @@ def get_assemblies(save_folder, term):
         else:
             print(f'assembly id {id} is not a refseq. skipping.')
 
+    ftp.quit()  # This is the “polite” way to close a connection
+    print("Successfully quited ftp connection")
+
     end = datetime.now()
     print(f'average download time per file: {(end - start_all) / len(ids)}')
     print(f'time: {end - start_all} seconds')
     print(f'refseq_assemblies_count: {refseq_assemblies_count}')
 
+    shutil.make_archive(os.path.join(results_folder, "fasta"), 'zip', fasta_folder)
+    print("Successfully archived fasta folder")
+
 
 def run(save_folder, term, filter_by_level=False, filter_by_date=False):
-    for i in range(NUMBER_OF_TRIES):
-        try:
-            get_assemblies(save_folder, term)
-        except Exception as e:
-            print(e)
-            print(f'finished try number: {i} out of {NUMBER_OF_TRIES}')
-        else:
-            print("Exiting")
-            break
+    get_assemblies(save_folder, term)
+    # for i in range(NUMBER_OF_TRIES):
+    #     try:
+    #         get_assemblies(save_folder, term)
+    #     except Exception as e:
+    #         print(e)
+    #         print(f'finished try number: {i} out of {NUMBER_OF_TRIES}')
+    #     else:
+    #         print("Exiting")
+    #         break
 
 
 # def main():
@@ -131,6 +143,6 @@ def run(save_folder, term, filter_by_level=False, filter_by_date=False):
 # if __name__ == "__main__":
 #     main()
 
-path_to_save_dir = r"C:\Users\97252\Documents\year_4\bio_project_data\download_results\results"
+path_to_save_dir = r"C:\Users\97252\Documents\year_4\bio_project_data\download_results"
 bacteria2search = "Xanthomonas campestris"
 run(path_to_save_dir, bacteria2search, filter_by_level=False, filter_by_date=False)
