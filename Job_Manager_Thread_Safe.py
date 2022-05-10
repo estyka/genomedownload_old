@@ -69,6 +69,8 @@ class Job_Manager_Thread_Safe:
         self.__scheduler = BackgroundScheduler()
         self.__scheduler.add_job(self.__listener.run, 'interval', seconds=sc.INTERVAL_BETWEEN_LISTENER_SAMPLES)
         self.__scheduler.add_job(run_create_download_species_list_process, 'interval', seconds=sc.INTERVAL_BETWEEN_BACTERIA_LIST_UPDATERS)
+        #self.__scheduler.add_job(run_create_download_species_list_process, 'interval', seconds=60*60)  #testing 1 hour
+        logger.info(f'scheduler added run_create_download_species_list_process job')
         self.__scheduler.start()
         
     def __save_processes_state_dict2file(self):

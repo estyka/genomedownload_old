@@ -55,7 +55,7 @@ UPLOAD_FOLDERS_ROOT_PATH = '/bioseq/data/results/genomedownload/'
 INTERVAL_BETWEEN_LISTENER_SAMPLES = 5  # in seconds
 INTERVAL_BETWEEN_BACTERIA_LIST_UPDATERS = 60*60*24 # 24 hours - in seconds
 
-PATH_2_DOWNLOAD_SCRIPT = r"/groups/pupko/estykatzeff/GD_scripts/download_files_from_ncbi.py"
+PATH_2_DOWNLOAD_SCRIPT = r"/groups/pupko/estykatzeff/GD_scripts/download_genomes_entrez.py"
 PATH_2_DOWNLOAD_LIST_SCRIPT = r"/groups/pupko/estykatzeff/GD_scripts/download_species_list.py"
 
 

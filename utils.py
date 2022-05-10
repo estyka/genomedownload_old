@@ -36,3 +36,5 @@ def send_email(smtp_server, sender, receiver, subject='', content=''):
     s = SMTP(smtp_server)
     s.send_message(msg)
     s.quit()
+    
+

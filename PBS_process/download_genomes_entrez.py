@@ -2,6 +2,7 @@ from Bio import Entrez
 import os, shutil, sys
 from datetime import datetime
 from ftplib import FTP
+from helpers import timeit
 
 """
 TODO:
@@ -11,7 +12,7 @@ TODO:
 """
 
 SERVER_PATH = r"ftp.ncbi.nlm.nih.gov"
-NUMBER_OF_TRIES = 500
+NUMBER_OF_TRIES = 5 # change to bigger number once stable
 
 
 def get_assembly_summary(id):
@@ -42,11 +43,16 @@ def download_files(ftp, url_genbank, save_folder, is_fasta=False):
         file_ending = 'assembly_stats.txt'
     file2download = f'{url_genbank}/{label}_{file_ending}'.split(SERVER_PATH)[-1]  # get the download link
     local_filename = os.path.join(save_folder, os.path.basename(os.path.normpath(file2download)))
+
+    # don't download if file already been downloaded (could happen bc of try error)
+    if os.path.isfile(local_filename):
+        return local_filename
+
     file = open(local_filename, 'wb')
     # try:
     ftp.retrbinary('RETR ' + file2download, file.write)
     file.close()
-    print(f'successfully downloaded file2download: {file2download}')
+    # print(f'successfully downloaded file2download: {file2download}')
     #except Exception as e:
      #   print(f'error downloading file2download: {file2download}, url_genbank: {url_genbank}, Error: {e}')
       #  file.close()
@@ -54,10 +60,11 @@ def download_files(ftp, url_genbank, save_folder, is_fasta=False):
     return local_filename
 
 # Download genbank assemblies for a given search term.
+@timeit
 def get_assemblies(save_folder, term):
     start_all = datetime.now()
     Entrez.email = "estykatzeff@mail.tau.ac.il"
-    handle = Entrez.esearch(db="assembly", term=term, retmax='200')
+    handle = Entrez.esearch(db="assembly", term=term, retmax='10000')
     record = Entrez.read(handle)
     ids = record['IdList']
     print(f'found {len(ids)} ids')
@@ -74,7 +81,7 @@ def get_assemblies(save_folder, term):
         summary = get_assembly_summary(id)
         url_genbank = summary['DocumentSummarySet']['DocumentSummary'][0]['FtpPath_GenBank']  # get ftp url
         if url_genbank == '':
-            print(f'there is no exisiting assembly for id: {id}')
+            print(f'there is no exisiting assembly for: {url_genbank}')
             continue
 
         # download stats
@@ -90,12 +97,12 @@ def get_assemblies(save_folder, term):
 
         if is_refseq: # only download assemblies which are refseq (Future: add this as option?)
             # download assemblies
-            download_files(ftp, url_genbank, fasta_folder, is_fasta=True)
+            fasta_file_path = download_files(ftp, url_genbank, fasta_folder, is_fasta=True)
 
         else:
             print(f'{url_genbank} is not a refseq. skipping.')
 
-    try:
+    try: # sometimes quits on its own
         ftp.quit()  # This is the “polite” way to close a connection
         print("Successfully quited ftp connection")
     except Exception as e:
@@ -122,6 +129,7 @@ def run(save_folder, term, filter_by_level=False, filter_by_date=False):
         else:
             print("Exiting")
             break
+
 
 
 def main():
