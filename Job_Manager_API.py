@@ -39,12 +39,12 @@ class Job_Manager_API:
         folder2remove = os.path.join(self.__upload_root_path, process_id)
         shutil.rmtree(folder2remove)
 
-    def __validate_organism_name(self, process_id, organism_name):
+    def __validate_organism_name(self, process_id, email_address, organism_name):
         parent_folder = os.path.join(self.__upload_root_path, process_id)
         if not os.path.isdir(parent_folder):
-            logger.warning(f'process_id = {process_id} doen\'t have a dir')
+            logger.warning(f'process_id = {process_id} doesn\'t have a dir')
             return False
-        if self.input_manager.validate_bacteria_input(organism_name):
+        if self.input_manager.validate_bacteria_input(email_address, organism_name):
             return True
         self.__delete_folder(process_id)
         logger.warning(f'validation failed {organism_name}, deleting process folder')
@@ -62,7 +62,7 @@ class Job_Manager_API:
 
     def add_process(self, process_id: str, email_address: str, organism_name: str):
         logger.info(f'process_id = {process_id} email_address = {email_address} organism_name = {organism_name}')
-        is_valid_organism = self.__validate_organism_name(process_id, organism_name)
+        is_valid_organism = self.__validate_organism_name(process_id, email_address, organism_name)
         is_valid_email = self.__validate_email_address(email_address)
         if is_valid_organism and is_valid_email:
             logger.info(f'validated organism name and email address')

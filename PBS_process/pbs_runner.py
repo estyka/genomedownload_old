@@ -28,30 +28,30 @@ def create_download_process(input_path, species2download):
 
     return job_run_output.stdout.decode('utf-8').split('.')[0]
     
-def create_download_species_list_process(input_path):
-    # create the job
-    logger.info("Starting to create the job")
-    job_unique_id = str(pathlib.Path(input_path).stem)
-    temp_script_path = pathlib.Path().resolve() / f'temp_download_species_list_file_{job_unique_id}.sh'
-    job_name = f'{JOB_PREFIX}_{job_unique_id}'
-    job_logs_path = str(pathlib.Path(input_path)) + '/'
-    logger.info(f'job_unique_id = {job_unique_id}, job_name = {JOB_PREFIX}_{job_unique_id}, job_logs_path = {job_logs_path}')
-    temp_script_text = SPECIES_LIST_DOWNLOAD_PROCESS_TEMPLATE.format(job_name=job_name, error_files_path=job_logs_path,
-                                                           output_files_path=job_logs_path, path_to_python_script=PATH_2_DOWNLOAD_LIST_SCRIPT,
-                                                           path_results=PATH2BACTERIAS_LIST)
-
-    # run the job
-    with open(temp_script_path, 'w+') as fp:
-        fp.write(temp_script_text)
-    logger.info(f'submitting job, temp_script_path = {temp_script_path}:')
-    logger.debug(f'{temp_script_text}')
-    terminal_cmd = f'/opt/pbs/bin/qsub {str(temp_script_path)}'
-    job_run_output = subprocess.run(terminal_cmd, stdout=PIPE, stderr=PIPE, shell=True)
-    logger.info(f'job_run_output = {job_run_output}')
-    print(f'job_run_output = {job_run_output}')
-    os.remove(temp_script_path)
-    
-    return job_run_output.stdout.decode('utf-8').split('.')[0]
-    
-def run_create_download_species_list_process():
-    create_download_species_list_process(os.path.join(UPLOAD_FOLDERS_ROOT_PATH, "bacteria_list_updater_process"))
+# def create_download_species_list_process(input_path):
+#     # create the job
+#     logger.info("Starting to create the job")
+#     job_unique_id = str(pathlib.Path(input_path).stem)
+#     temp_script_path = pathlib.Path().resolve() / f'temp_download_species_list_file_{job_unique_id}.sh'
+#     job_name = f'{JOB_PREFIX}_{job_unique_id}'
+#     job_logs_path = str(pathlib.Path(input_path)) + '/'
+#     logger.info(f'job_unique_id = {job_unique_id}, job_name = {JOB_PREFIX}_{job_unique_id}, job_logs_path = {job_logs_path}')
+#     temp_script_text = SPECIES_LIST_DOWNLOAD_PROCESS_TEMPLATE.format(job_name=job_name, error_files_path=job_logs_path,
+#                                                            output_files_path=job_logs_path, path_to_python_script=PATH_2_DOWNLOAD_LIST_SCRIPT,
+#                                                            path_results=PATH2BACTERIAS_LIST)
+#
+#     # run the job
+#     with open(temp_script_path, 'w+') as fp:
+#         fp.write(temp_script_text)
+#     logger.info(f'submitting job, temp_script_path = {temp_script_path}:')
+#     logger.debug(f'{temp_script_text}')
+#     terminal_cmd = f'/opt/pbs/bin/qsub {str(temp_script_path)}'
+#     job_run_output = subprocess.run(terminal_cmd, stdout=PIPE, stderr=PIPE, shell=True)
+#     logger.info(f'job_run_output = {job_run_output}')
+#     print(f'job_run_output = {job_run_output}')
+#     os.remove(temp_script_path)
+#
+#     return job_run_output.stdout.decode('utf-8').split('.')[0]
+#
+# def run_create_download_species_list_process():
+#     create_download_species_list_process(os.path.join(UPLOAD_FOLDERS_ROOT_PATH, "bacteria_list_updater_process"))

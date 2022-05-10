@@ -2,7 +2,7 @@ from Bio import Entrez
 import os, shutil, sys
 from datetime import datetime
 from ftplib import FTP
-from helpers import timeit
+from PBS_process.helpers import timeit
 
 """
 TODO:
@@ -59,14 +59,19 @@ def download_files(ftp, url_genbank, save_folder, is_fasta=False):
        # os.remove(local_filename)
     return local_filename
 
-# Download genbank assemblies for a given search term.
-@timeit
-def get_assemblies(save_folder, term):
-    start_all = datetime.now()
+
+def get_assembly_ids(term):
     Entrez.email = "estykatzeff@mail.tau.ac.il"
     handle = Entrez.esearch(db="assembly", term=term, retmax='10000')
     record = Entrez.read(handle)
     ids = record['IdList']
+    return ids
+
+# Download genbank assemblies for a given search term.
+@timeit
+def get_assemblies(save_folder, term):
+    start_all = datetime.now()
+    ids = get_assembly_ids(term)
     print(f'found {len(ids)} ids')
     refseq_assemblies_count = 0
 
@@ -122,6 +127,7 @@ def run(save_folder, term, filter_by_level=False, filter_by_date=False):
     # get_assemblies(save_folder, term)
     for i in range(NUMBER_OF_TRIES):
         try:
+            print(f'===============Try #{i}=================')
             get_assemblies(save_folder, term)
         except Exception as e:
             print(e)
