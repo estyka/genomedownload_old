@@ -2,7 +2,7 @@ from Bio import Entrez
 import os, shutil, sys
 from datetime import datetime
 from ftplib import FTP
-from PBS_process.helpers import timeit
+from helpers import timeit
 import traceback
 
 """
